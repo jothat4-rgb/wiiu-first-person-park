@@ -557,14 +557,6 @@ static void drawPark(void *user)
 // GAMEPAD ORIENTATION
 // ============================================================
 
-// The GamePad reports three perpendicular local axes.
-// X = horizontal axis of the GamePad.
-// Y = depth axis, perpendicular to the screen.
-// Z = vertical axis of the GamePad.
-//
-// We save all three axes during calibration. Later, we compare
-// the current screen-facing direction with that saved basis.
-
 struct PadBasis
 {
     Vec3 x;
@@ -693,12 +685,10 @@ static void addCalibrationSample(const PadBasis &sample)
     if (calibrationSamples < CALIBRATION_SAMPLE_COUNT)
         return;
 
-    // Average the samples to reduce small sensor fluctuations.
     baseX = normalize3(calibrationSumX);
     Vec3 averageY = normalize3(calibrationSumY);
     Vec3 averageZ = normalize3(calibrationSumZ);
 
-    // Make the saved axes perpendicular.
     float projection = dot3(baseX,averageY);
 
     baseY = normalize3({
@@ -709,8 +699,6 @@ static void addCalibrationSample(const PadBasis &sample)
 
     baseZ = normalize3(cross3(baseX,baseY));
 
-    // Keep the calculated Z axis pointing in the same general
-    // direction as the measured Z axis.
     if (dot3(baseZ,averageZ) < 0.0f)
     {
         baseZ.x = -baseZ.x;
@@ -730,8 +718,6 @@ static bool getPadAngles(
     float *yaw,
     float *pitch)
 {
-    // Express the current screen-facing direction (local Y axis)
-    // in the calibrated GamePad coordinate system.
     float fx = dot3(baseX,current.y);
     float fy = dot3(baseY,current.y);
     float fz = dot3(baseZ,current.y);
@@ -741,8 +727,6 @@ static bool getPadAngles(
     if (horizontal < 0.05f)
         return false;
 
-    // Horizontal turning and vertical tilting are calculated
-    // separately from the calibrated three-axis reference.
     *yaw = atan2f(fx,fy);
     *pitch = atan2f(fz,horizontal);
 
@@ -874,7 +858,6 @@ int main(int argc, char **argv)
     scene.pixelBlock = pixelBlock;
     scene.indexCount = (uint32_t)indices.size();
 
-    // Start collecting the initial upright calibration.
     startCalibration();
 
     bool plusWasPressed = false;
@@ -885,8 +868,6 @@ int main(int argc, char **argv)
 
         float dt = clock.dt;
 
-        // Avoid unusually large movement or camera jumps after
-        // a slow frame.
         dt = clampf(dt,0.0f,0.05f);
 
         VPADStatus pad{};
@@ -898,7 +879,6 @@ int main(int argc, char **argv)
             bool validOrientation =
                 getPadBasis(pad,&current);
 
-            // PLUS starts a fresh calibration when pressed.
             bool plusPressed =
                 (pad.trigger & VPAD_BUTTON_PLUS) != 0;
 
@@ -923,6 +903,10 @@ int main(int argc, char **argv)
                         &measuredYaw,
                         &measuredPitch))
                     {
+                        // FIX: Reverse vertical looking direction.
+                        // Horizontal camera movement is unchanged.
+                        measuredPitch = -measuredPitch;
+
                         measuredPitch =
                             clampf(measuredPitch,-1.2f,1.2f);
 
@@ -941,7 +925,6 @@ int main(int argc, char **argv)
                 }
             }
 
-            // Left stick movement is independent of camera pitch.
             float lx = pad.leftStick.x;
             float ly = pad.leftStick.y;
 
@@ -956,7 +939,6 @@ int main(int argc, char **argv)
 
             const float walkingSpeed = 4.5f;
 
-            // Do not move while the initial calibration is running.
             if (!calibrationActive)
             {
                 camPos.x +=
@@ -1024,6 +1006,7 @@ int main(int argc, char **argv)
         CremaFrameEnd(&frame,&stats);
     }
 
+    // Wait for submitted GPU work before destroying resources.
     CremaFrameSettle(&frame);
 
     CremaUniformRingDestroy(&globals);
@@ -1034,6 +1017,7 @@ int main(int argc, char **argv)
     CremaShaderFree(shader);
     CremaShaderShutdownCompiler();
 
+    // Crema handles WHB graphics and ProcUI shutdown here.
     CremaAppShutdown();
 
     return 0;

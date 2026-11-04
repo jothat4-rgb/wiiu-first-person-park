@@ -131,6 +131,7 @@ static void addTriangle(
     float nz = ux * vy - uy * vx;
 
     float length = sqrtf(nx * nx + ny * ny + nz * nz);
+
     if (length > 0.00001f)
     {
         nx /= length;
@@ -317,17 +318,17 @@ static void addEllipsoid(
 // PARK OBJECTS
 // ============================================================
 
-static const float GRASS[]   = {0.20f,0.42f,0.16f};
+static const float GRASS[]     = {0.20f,0.42f,0.16f};
 static const float DARKGRASS[] = {0.14f,0.32f,0.12f};
-static const float PATH[]    = {0.53f,0.47f,0.36f};
-static const float WOOD[]    = {0.35f,0.18f,0.08f};
-static const float WOOD2[]   = {0.53f,0.30f,0.13f};
-static const float LEAVES[]  = {0.10f,0.32f,0.10f};
-static const float LEAVES2[] = {0.18f,0.42f,0.13f};
-static const float WATER[]   = {0.08f,0.30f,0.48f};
-static const float METAL[]   = {0.20f,0.22f,0.23f};
-static const float LAMP[]    = {0.90f,0.78f,0.48f};
-static const float FLOWER[]  = {0.72f,0.30f,0.35f};
+static const float PATH[]      = {0.53f,0.47f,0.36f};
+static const float WOOD[]      = {0.35f,0.18f,0.08f};
+static const float WOOD2[]     = {0.53f,0.30f,0.13f};
+static const float LEAVES[]    = {0.10f,0.32f,0.10f};
+static const float LEAVES2[]   = {0.18f,0.42f,0.13f};
+static const float WATER[]     = {0.08f,0.30f,0.48f};
+static const float METAL[]     = {0.20f,0.22f,0.23f};
+static const float LAMP[]      = {0.90f,0.78f,0.48f};
+static const float FLOWER[]    = {0.72f,0.30f,0.35f};
 
 static void buildGround()
 {
@@ -338,7 +339,6 @@ static void buildGround()
 
     addQuad(a,b,c,d,GRASS);
 
-    // Outer park boundary.
     addBox(0.0f,-0.3f,-42.0f,84.0f,0.6f,0.5f,DARKGRASS);
     addBox(0.0f,-0.3f, 42.0f,84.0f,0.6f,0.5f,DARKGRASS);
     addBox(-42.0f,-0.3f,0.0f,0.5f,0.6f,84.0f,DARKGRASS);
@@ -347,7 +347,6 @@ static void buildGround()
 
 static void buildPath()
 {
-    // Winding central walking path.
     const float points[][2] =
     {
         {0.0f,35.0f},
@@ -413,14 +412,11 @@ static void buildPond()
         addTriangle(center,p1,p0,WATER);
     }
 
-    // Bridge deck across the pond.
     addBox(12.0f,0.35f,-8.0f,17.0f,0.35f,2.4f,WOOD2);
 
-    // Bridge railings.
     addBox(12.0f,1.15f,-9.2f,17.0f,1.2f,0.15f,WOOD);
     addBox(12.0f,1.15f,-6.8f,17.0f,1.2f,0.15f,WOOD);
 
-    // Supporting bridge posts.
     for (int i = 0; i < 7; ++i)
     {
         float x = 4.5f + i*2.5f;
@@ -440,13 +436,9 @@ static void buildTree(float x, float z, float size)
 
 static void buildBench(float x, float z)
 {
-    // Seat.
     addBox(x,0.75f,z,2.2f,0.15f,0.65f,WOOD2);
-
-    // Backrest.
     addBox(x,1.25f,z+0.28f,2.2f,0.85f,0.13f,WOOD);
 
-    // Legs.
     addBox(x-0.85f,0.0f,z,0.13f,0.75f,0.13f,METAL);
     addBox(x+0.85f,0.0f,z,0.13f,0.75f,0.13f,METAL);
 }
@@ -463,7 +455,6 @@ static void buildPark()
     buildPath();
     buildPond();
 
-    // Trees around the park.
     buildTree(-27.0f, 27.0f,1.2f);
     buildTree(-18.0f, 31.0f,0.9f);
     buildTree(-31.0f, 12.0f,1.1f);
@@ -479,25 +470,21 @@ static void buildPark()
     buildTree(-19.0f,-12.0f,1.0f);
     buildTree( 23.0f, 18.0f,0.9f);
 
-    // Bushes.
     addEllipsoid(-11.0f,0.65f,22.0f,1.5f,0.8f,1.2f,LEAVES2);
     addEllipsoid(-13.0f,0.55f,20.0f,1.2f,0.65f,1.0f,LEAVES);
     addEllipsoid( 20.0f,0.65f,23.0f,1.5f,0.8f,1.2f,LEAVES2);
     addEllipsoid( 22.0f,0.55f,21.0f,1.2f,0.65f,1.0f,LEAVES);
 
-    // Benches.
     buildBench(-9.0f,14.0f);
     buildBench( 0.0f,-25.0f);
     buildBench(23.0f,  4.0f);
 
-    // Lamp posts.
     buildLamp(-7.0f,22.0f);
     buildLamp( 8.0f,13.0f);
     buildLamp( 7.0f,-1.0f);
     buildLamp(-8.0f,-17.0f);
     buildLamp( 9.0f,-27.0f);
 
-    // Flower patches.
     for (int i = 0; i < 12; ++i)
     {
         float x = -22.0f + (float)(i%4)*1.0f;
@@ -537,8 +524,6 @@ static void drawPark(void *user)
     GX2SetDepthOnlyControl(
         TRUE, TRUE, GX2_COMPARE_FUNC_LESS);
 
-    // We use face normals and disable face culling so that
-    // every generated park surface remains visible.
     GX2SetCullOnlyControl(
         GX2_FRONT_FACE_CCW, FALSE, FALSE);
 
@@ -572,14 +557,42 @@ static void drawPark(void *user)
 // GAMEPAD ORIENTATION
 // ============================================================
 
-static float baseYaw = 0.0f;
-static float basePitch = 0.0f;
+// The GamePad reports three perpendicular local axes.
+// X = horizontal axis of the GamePad.
+// Y = depth axis, perpendicular to the screen.
+// Z = vertical axis of the GamePad.
+//
+// We save all three axes during calibration. Later, we compare
+// the current screen-facing direction with that saved basis.
+
+struct PadBasis
+{
+    Vec3 x;
+    Vec3 y;
+    Vec3 z;
+};
+
+static Vec3 baseX = {1.0f,0.0f,0.0f};
+static Vec3 baseY = {0.0f,1.0f,0.0f};
+static Vec3 baseZ = {0.0f,0.0f,1.0f};
+
+static Vec3 calibrationSumX = {0.0f,0.0f,0.0f};
+static Vec3 calibrationSumY = {0.0f,0.0f,0.0f};
+static Vec3 calibrationSumZ = {0.0f,0.0f,0.0f};
+
+static int calibrationSamples = 0;
+static const int CALIBRATION_SAMPLE_COUNT = 90;
+
+static bool calibrationActive = true;
+static bool orientationCalibrated = false;
+
 static float cameraYaw = 0.0f;
 static float cameraPitch = 0.0f;
 
 static bool readGamePad(VPADStatus *status)
 {
     VPADReadError error;
+
     return VPADRead(
         VPAD_CHAN_0,
         status,
@@ -587,26 +600,151 @@ static bool readGamePad(VPADStatus *status)
         &error) > 0;
 }
 
-static bool getPadAngles(
+static float dot3(Vec3 a, Vec3 b)
+{
+    return a.x*b.x + a.y*b.y + a.z*b.z;
+}
+
+static Vec3 normalize3(Vec3 v)
+{
+    float length = sqrtf(dot3(v,v));
+
+    if (length < 0.0001f)
+        return {0.0f,0.0f,0.0f};
+
+    return {
+        v.x/length,
+        v.y/length,
+        v.z/length
+    };
+}
+
+static Vec3 cross3(Vec3 a, Vec3 b)
+{
+    return {
+        a.y*b.z - a.z*b.y,
+        a.z*b.x - a.x*b.z,
+        a.x*b.y - a.y*b.x
+    };
+}
+
+static bool getPadBasis(
     const VPADStatus &pad,
+    PadBasis *basis)
+{
+    basis->x = normalize3({
+        pad.direction.x.x,
+        pad.direction.x.y,
+        pad.direction.x.z
+    });
+
+    basis->y = normalize3({
+        pad.direction.y.x,
+        pad.direction.y.y,
+        pad.direction.y.z
+    });
+
+    basis->z = normalize3({
+        pad.direction.z.x,
+        pad.direction.z.y,
+        pad.direction.z.z
+    });
+
+    if (dot3(basis->x,basis->x) < 0.5f ||
+        dot3(basis->y,basis->y) < 0.5f ||
+        dot3(basis->z,basis->z) < 0.5f)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+static void startCalibration()
+{
+    calibrationSumX = {0.0f,0.0f,0.0f};
+    calibrationSumY = {0.0f,0.0f,0.0f};
+    calibrationSumZ = {0.0f,0.0f,0.0f};
+
+    calibrationSamples = 0;
+    calibrationActive = true;
+    orientationCalibrated = false;
+
+    cameraYaw = 0.0f;
+    cameraPitch = 0.0f;
+}
+
+static void addCalibrationSample(const PadBasis &sample)
+{
+    calibrationSumX.x += sample.x.x;
+    calibrationSumX.y += sample.x.y;
+    calibrationSumX.z += sample.x.z;
+
+    calibrationSumY.x += sample.y.x;
+    calibrationSumY.y += sample.y.y;
+    calibrationSumY.z += sample.y.z;
+
+    calibrationSumZ.x += sample.z.x;
+    calibrationSumZ.y += sample.z.y;
+    calibrationSumZ.z += sample.z.z;
+
+    calibrationSamples++;
+
+    if (calibrationSamples < CALIBRATION_SAMPLE_COUNT)
+        return;
+
+    // Average the samples to reduce small sensor fluctuations.
+    baseX = normalize3(calibrationSumX);
+    Vec3 averageY = normalize3(calibrationSumY);
+    Vec3 averageZ = normalize3(calibrationSumZ);
+
+    // Make the saved axes perpendicular.
+    float projection = dot3(baseX,averageY);
+
+    baseY = normalize3({
+        averageY.x - baseX.x*projection,
+        averageY.y - baseX.y*projection,
+        averageY.z - baseX.z*projection
+    });
+
+    baseZ = normalize3(cross3(baseX,baseY));
+
+    // Keep the calculated Z axis pointing in the same general
+    // direction as the measured Z axis.
+    if (dot3(baseZ,averageZ) < 0.0f)
+    {
+        baseZ.x = -baseZ.x;
+        baseZ.y = -baseZ.y;
+        baseZ.z = -baseZ.z;
+    }
+
+    calibrationActive = false;
+    orientationCalibrated = true;
+
+    cameraYaw = 0.0f;
+    cameraPitch = 0.0f;
+}
+
+static bool getPadAngles(
+    const PadBasis &current,
     float *yaw,
     float *pitch)
 {
-    float fx = pad.direction.z.x;
-    float fy = pad.direction.z.y;
-    float fz = pad.direction.z.z;
+    // Express the current screen-facing direction (local Y axis)
+    // in the calibrated GamePad coordinate system.
+    float fx = dot3(baseX,current.y);
+    float fy = dot3(baseY,current.y);
+    float fz = dot3(baseZ,current.y);
 
-    float length = sqrtf(fx*fx + fy*fy + fz*fz);
+    float horizontal = sqrtf(fx*fx + fy*fy);
 
-    if (length < 0.5f)
+    if (horizontal < 0.05f)
         return false;
 
-    fx /= length;
-    fy /= length;
-    fz /= length;
-
-    *yaw = atan2f(-fx,-fz);
-    *pitch = asinf(clampf(fy,-1.0f,1.0f));
+    // Horizontal turning and vertical tilting are calculated
+    // separately from the calibrated three-axis reference.
+    *yaw = atan2f(fx,fy);
+    *pitch = atan2f(fz,horizontal);
 
     return true;
 }
@@ -626,7 +764,6 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    // Generate the entire park.
     buildPark();
 
     if (vertices.empty() || indices.empty())
@@ -695,7 +832,6 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    // Per-frame uniforms are safely double-buffered.
     CremaUniformRing globals{};
 
     if (!CremaUniformRingCreate(
@@ -719,7 +855,6 @@ int main(int argc, char **argv)
 
     CremaFrameStats stats{};
 
-    // Player starts near the park entrance.
     Vec3 camPos = {0.0f,1.7f,32.0f};
 
     Mat4 projection = mat4_perspective(
@@ -731,12 +866,6 @@ int main(int argc, char **argv)
     Vec3 lightRaw = {-0.45f,-0.8f,-0.35f};
     Vec3 light = vec3_normalize(lightRaw);
 
-    // Initial orientation calibration.
-    // Keep the GamePad still in your normal playing position.
-    float yawSum = 0.0f;
-    float pitchSum = 0.0f;
-    int calibrationSamples = 0;
-
     SceneView scene{};
     scene.shader = shader;
     scene.vertexBuffer = &vertexBuffer;
@@ -745,64 +874,69 @@ int main(int argc, char **argv)
     scene.pixelBlock = pixelBlock;
     scene.indexCount = (uint32_t)indices.size();
 
+    // Start collecting the initial upright calibration.
+    startCalibration();
+
+    bool plusWasPressed = false;
+
     while (CremaAppRunning())
     {
         CremaClockTick(&clock);
+
         float dt = clock.dt;
+
+        // Avoid unusually large movement or camera jumps after
+        // a slow frame.
+        dt = clampf(dt,0.0f,0.05f);
 
         VPADStatus pad{};
 
         if (readGamePad(&pad))
         {
-            float measuredYaw;
-            float measuredPitch;
+            PadBasis current{};
 
-            if (getPadAngles(
-                pad,
-                &measuredYaw,
-                &measuredPitch))
+            bool validOrientation =
+                getPadBasis(pad,&current);
+
+            // PLUS starts a fresh calibration when pressed.
+            bool plusPressed =
+                (pad.trigger & VPAD_BUTTON_PLUS) != 0;
+
+            if (plusPressed && !plusWasPressed)
+                startCalibration();
+
+            plusWasPressed = plusPressed;
+
+            if (validOrientation)
             {
-                if (calibrationSamples < 90)
+                if (calibrationActive)
                 {
-                    yawSum += measuredYaw;
-                    pitchSum += measuredPitch;
-                    calibrationSamples++;
-
-                    if (calibrationSamples == 90)
-                    {
-                        baseYaw = yawSum / 90.0f;
-                        basePitch = pitchSum / 90.0f;
-                    }
+                    addCalibrationSample(current);
                 }
-                else
+                else if (orientationCalibrated)
                 {
-                    float targetYaw =
-                        angleDifference(measuredYaw,baseYaw);
+                    float measuredYaw = 0.0f;
+                    float measuredPitch = 0.0f;
 
-                    float targetPitch =
-                        measuredPitch-basePitch;
-
-                    targetPitch =
-                        clampf(targetPitch,-1.2f,1.2f);
-
-                    // Smooth the camera response.
-                    float smoothing =
-                        clampf(dt*12.0f,0.0f,1.0f);
-
-                    cameraYaw +=
-                        angleDifference(targetYaw,cameraYaw)
-                        * smoothing;
-
-                    cameraPitch +=
-                        (targetPitch-cameraPitch)*smoothing;
-
-                    // PLUS recenters the current GamePad orientation.
-                    if (pad.trigger & VPAD_BUTTON_PLUS)
+                    if (getPadAngles(
+                        current,
+                        &measuredYaw,
+                        &measuredPitch))
                     {
-                        baseYaw = measuredYaw;
-                        basePitch = measuredPitch;
-                        cameraYaw = 0.0f;
-                        cameraPitch = 0.0f;
+                        measuredPitch =
+                            clampf(measuredPitch,-1.2f,1.2f);
+
+                        float smoothing =
+                            clampf(dt*8.0f,0.0f,1.0f);
+
+                        cameraYaw +=
+                            angleDifference(
+                                measuredYaw,cameraYaw)
+                            * smoothing;
+
+                        cameraPitch +=
+                            (measuredPitch-cameraPitch)
+                            * smoothing;
                     }
                 }
             }
@@ -822,16 +956,19 @@ int main(int argc, char **argv)
 
             const float walkingSpeed = 4.5f;
 
-            camPos.x +=
-                (forwardX*ly + rightX*lx)
-                * walkingSpeed * dt;
+            // Do not move while the initial calibration is running.
+            if (!calibrationActive)
+            {
+                camPos.x +=
+                    (forwardX*ly + rightX*lx)
+                    * walkingSpeed * dt;
 
-            camPos.z +=
-                (forwardZ*ly + rightZ*lx)
-                * walkingSpeed * dt;
+                camPos.z +=
+                    (forwardZ*ly + rightZ*lx)
+                    * walkingSpeed * dt;
+            }
         }
 
-        // Keep the player inside the park.
         camPos.x = clampf(camPos.x,-39.0f,39.0f);
         camPos.z = clampf(camPos.z,-39.0f,39.0f);
 
@@ -887,7 +1024,6 @@ int main(int argc, char **argv)
         CremaFrameEnd(&frame,&stats);
     }
 
-    // Clean shutdown.
     CremaFrameSettle(&frame);
 
     CremaUniformRingDestroy(&globals);

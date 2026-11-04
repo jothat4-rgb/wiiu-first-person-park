@@ -1,0 +1,34 @@
+name: Build Wii U Park
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download project
+        uses: actions/checkout@v4
+
+      - name: Download Crema framework
+        run: |
+          mkdir -p third_party
+          git clone --depth 1 https://github.com/vs-sr-dev/wiiu-crema.git third_party/wiiu-crema
+
+      - name: Build Wii U game
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/src" \
+            devkitpro/devkitppc:latest \
+            bash -lc 'cd /src && cmake -B build -DCMAKE_TOOLCHAIN_FILE=/src/third_party/wiiu-crema/cmake/wiiu-devkitpro.cmake -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" && make -C build -j2'
+
+      - name: Save game files
+        uses: actions/upload-artifact@v4
+        with:
+          name: WiiU-Park-Build
+          path: |
+            build/**/*.wuhb
+            build/**/*.rpx

@@ -18,6 +18,21 @@ jobs:
           mkdir -p third_party
           git clone --depth 1 https://github.com/vs-sr-dev/wiiu-crema.git third_party/wiiu-crema
 
+      - name: Install asset build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip
+          python3 -m pip install --break-system-packages pillow
+
+      - name: Build Kenney game assets
+        run: |
+          python3 tools/build_assets.py \
+            --roads kenney_city-kit-roads.zip \
+            --suburban kenney_city-kit-suburban_20.zip \
+            --nature kenney_nature-kit.zip \
+            --crema third_party/wiiu-crema \
+            --output build/park_content
+
       - name: Build Wii U game
         run: |
           docker run --rm \

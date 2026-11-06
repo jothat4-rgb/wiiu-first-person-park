@@ -8,10 +8,15 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# ------------------------------------------------------------
+# CREMA FRAMEWORK
+# ------------------------------------------------------------
+
 set(CREMA_DIR "${CMAKE_SOURCE_DIR}/third_party/wiiu-crema")
 
 if(NOT EXISTS "${CREMA_DIR}/crema/crema_app.c")
-    message(FATAL_ERROR "Crema framework was not downloaded.")
+    message(FATAL_ERROR
+        "Crema framework was not downloaded. Check the build workflow.")
 endif()
 
 add_library(crema STATIC
@@ -40,11 +45,41 @@ target_include_directories(crema PUBLIC
     "${CREMA_DIR}/external"
 )
 
+# ------------------------------------------------------------
+# GAME SOURCE
+# ------------------------------------------------------------
+
 add_executable(WiiUPark
     source/main.cpp
 )
 
 target_link_libraries(WiiUPark PRIVATE crema)
+
+# ------------------------------------------------------------
+# GAME ASSETS
+#
+# tools/build_assets.py will generate these files during the
+# GitHub Actions build:
+#
+# roads.cmesh
+# roads.ctex
+# suburban.cmesh
+# suburban.ctex
+# nature.cmesh
+# nature.ctex
+#
+# The files are placed in this folder before packaging.
+# ------------------------------------------------------------
+
+set(PARK_CONTENT_DIR
+    "${CMAKE_BINARY_DIR}/park_content"
+)
+
+file(MAKE_DIRECTORY "${PARK_CONTENT_DIR}")
+
+# ------------------------------------------------------------
+# WII U OUTPUT
+# ------------------------------------------------------------
 
 wut_create_rpx(WiiUPark)
 
@@ -52,4 +87,5 @@ wut_create_wuhb(WiiUPark
     NAME "The Park"
     SHORTNAME "ThePark"
     AUTHOR "Wii U Homebrew"
+    CONTENT "${PARK_CONTENT_DIR}"
 )
